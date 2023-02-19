@@ -9,6 +9,10 @@ void set_color(int text, int backgrnd) // Изменение цвета текс
 {
 	SetConsoleTextAttribute(h, (backgrnd << 4) + text);
 }
+void set_color(int text) // Изменение цвета текста/фона консоли
+{
+	SetConsoleTextAttribute(h, (0 << 4) + text);
+}
 
 class IHuman
 {
@@ -32,12 +36,13 @@ public:
 class Subject : public ISubject
 {
 	vector <IHuman*> humans;
-	int day;
+	int day = 1;
+	bool showPoinT = true;
 
 public:
 	virtual ~Subject() 
 	{
-		cout << "kill subject\n"; 
+		cout << "delete subject\n"; 
 	}
 
 	void attach(IHuman* human) override
@@ -47,25 +52,9 @@ public:
 	}
 	void detach(IHuman* human) override { humans.erase(remove(humans.begin(), humans.end(), human), humans.end()); }
 
-	void killHumans()
-	{
-		auto it = humans.begin();
-		while (it != humans.end())
-		{
-			(*it)->kill();
-			it++;
-		}
-	}
-
-	void notify() override
-	{
-		auto it = humans.begin();
-		while (it != humans.end())
-		{
-			(*it)->update();
-			it++;
-		}
-	}
+	void deleteHumans() { auto it = humans.begin(); while (it != humans.end()) (*it++)->kill(); {} }
+		
+	void notify() override { auto it = humans.begin(); while (it != humans.end()) { (*it++)->update(); } }
 
 	void nextDay()
 	{
@@ -79,15 +68,26 @@ public:
 		cout << "Вы ещё не создали ни одного человека!\n\n";
 		return false;
 	}
+	bool allDeath()
+	{
+		auto it = humans.begin(); while (it != humans.end())
+		{
+			cout << "yes";
+		}
+	}
+
 	int getHumanSize() { return humans.size(); }
 	int getHumanId(int id) { return humans.at(id)->getId(); }
+	int getDay() { return day; }
+	bool showPoint() { return showPoinT; }
+	void showPoint(bool value) { showPoinT = value; }
 };
 
 class Human : public IHuman
 {
 	Subject& subject;
 	int id, days;
-	int health, hungry;
+	int health, hungry, point, mood;
 	int thirst = 0;
 	bool death, critical;	
 
@@ -96,29 +96,61 @@ public:
 	{
 		this->subject.attach(this);
 		health = hungry = 100;
+		mood = 80;
 		death = critical = false;
 		days = 1;
+		point = 2;
 	}
-
+	
 	virtual ~Human()
 	{ 
-		cout << "kill human\n"; 
+		cout << "delete human\n"; 
+	}
+
+	void checkDeath()
+	{
+		if (health <= 0) {
+			if(death == false) cout << "Человек ID" << id << " умер!\n";
+			death = true;
+		}
 	}
 
 	void update() override
 	{
+		checkDeath();
+		srand(time(NULL));
 		days++;
-		cout << "UPDATE!\n";
+		
+		int healthMin = 0;
+		int healthMax = 0;
+
+		if(hungry >= 125) { healthMin += 2; healthMax += 5; }
+		else if(hungry >= 150) { healthMin += 5; healthMax += 10; }
+		else if (hungry <= 25) { healthMin += 5; healthMax += 10; }
+		else if(hungry <= 50) { healthMin += 2; healthMax += 5; }
+
+		if (healthMax > 0) { health -= healthMin + rand() % healthMax; }
+		hungry -= 5 + rand() % 20;
+		thirst += 5 + rand() % 15;
+		mood -= 2 + rand() % 7;
+		point += 2;
+
+		if (health > 100) health = 100;
+		else if (health < 0) health = 0;
+
+		if (hungry < 0) hungry = 0;
+
+		if (mood > 100) mood = 100;
+		else if (mood < 0) mood = 0;
 	}
 
 	void showStatus()
 	{
 		cout << "Ваши статусы:\n";
 
-
 		if (health >= 60) { cout << "Здоровье: "; set_color(2, 0); cout << health; set_color(7, 0); cout << endl; }
 		else if (health >= 30) { cout << "Здоровье: "; set_color(6, 0); cout << health; set_color(7, 0); cout << endl; }
-		else { cout << "Здоровье: "; set_color(4, 0); cout << health; set_color(7, 0); }
+		else { cout << "Здоровье: "; set_color(4, 0); cout << health; set_color(7, 0); cout << endl; }
 
 		if (hungry >= 60) { cout << "Сытость: "; set_color(2, 0); cout << hungry; set_color(7, 0); cout << endl; }
 		else if (hungry >= 30) { cout << "Сытость: "; set_color(6, 0); cout << hungry; set_color(7, 0); cout << endl; }
@@ -127,6 +159,12 @@ public:
 		if (thirst <= 30) { cout << "Жажда: "; set_color(2, 0); cout << thirst; set_color(7, 0); cout << endl; }
 		else if (thirst <= 60) { cout << "Жажда: "; set_color(6, 0); cout << thirst; set_color(7, 0); cout << endl; }
 		else { cout << "Жажда: "; set_color(4, 0); cout << thirst; set_color(7, 0); cout << endl; }
+	
+		if (mood >= 60) { cout << "Настроение: "; set_color(2, 0); cout << mood; set_color(7, 0); cout << endl; }
+		else if (mood >= 30) { cout << "Настроение: "; set_color(6, 0); cout << mood; set_color(7, 0); cout << endl; }
+		else { cout << "Настроение: "; set_color(4, 0); cout << mood; set_color(7, 0); cout << endl; }
+
+		cout << "Очки взаимодействий: " << point << endl;
 	}
 
 	void kill() { delete this; }
@@ -135,6 +173,8 @@ public:
 
 	void setId(vector<IHuman*> arr) { id = arr.size(); }
 	int getId() { return id; }
+	int getPoint() { return point; }
+	bool humanDeath() { return death; }
 };
 
 void input(string& txt) // Эти функции я создал с целью оптимизации кода. Вместо строчек cin и cls получается всего лишь одна input
@@ -153,12 +193,43 @@ void gameplay(Subject &sub, Human &hum) // Это основная функци�
 {
 	string user;
 	int u;
+	
 
 	while (true)
 	{
-		cout << "\tГЕЙМПЛЕЙ\n\t--------\n";
+		if (hum.humanDeath())
+		{
+			cout << "Данный человек мёртв! Вы можете переключиться на другого если создали, либо завершить игровой сеанс.\n\n";
+			break;
+		}
+
+		cout << "\tГЕЙМПЛЕЙ" <<  " ДЕНЬ " << sub.getDay() << " | Человек ID" << hum.getId() << "\n\t--------\n";
 		hum.showStatus();
-		break;
+
+		cout << "1. Следующий день\n2. Питание\n3. Развлечения\n4. Вернуться в меню\n-> ";
+		input(user);
+
+		if (user == "1")
+		{
+			if (hum.getPoint() > 0)
+			{
+				if (sub.showPoint()) {
+					cout << "Вы уверены? У вас ещё остались очки взаимодействий\n1. Нет\n2. Да\n3. Больше не спрашивать\n-> ";
+					input(user);
+
+					if (user == "2") sub.nextDay();
+					else if (user == "3") { sub.showPoint(false); sub.nextDay(); }
+				} 
+				else sub.nextDay();				
+			}
+			else sub.nextDay();
+			hum.checkDeath();
+		}
+		else if (user == "2")
+		{
+
+		}
+		else if (user == "4") break;
 	}
 }
 
@@ -188,7 +259,7 @@ int main()
 			if (amount <= 14)
 			{
 				humans[amount++] = new Human(*sub);
-				sub->nextDay();
+				cout << "Человек создан!\n\n";
 			}
 			else cout << "Больше создать нельзя!\n\n";
 		}
@@ -198,7 +269,9 @@ int main()
 			{
 				for (int i = 0; i < sub->getHumanSize(); i++)
 				{
-					cout << i + 1 << ". Человек (ID " << sub->getHumanId(i) << ")\n";
+					cout << i + 1 << ". Человек (ID " << sub->getHumanId(i) << ") ";
+					if (humans[i]->humanDeath()) { set_color(4); cout << "Мёртв\n"; set_color(7); }
+					else { set_color(2); cout << "Жив\n"; set_color(7); }
 				}
 				cout << "Введите цифру -> ";
 				input(u);
@@ -210,8 +283,8 @@ int main()
 		else if (user == "3")
 		{
 			// вывод статистики
-			sub->killHumans();
-			delete[] humans;
+			sub->deleteHumans();
+			//delete[] humans;
 			delete sub;
 			cout << "\n\nСпасибо что сыграли! Вверху вы можете наблюдать работу деструкторов.\n";
 			break;
