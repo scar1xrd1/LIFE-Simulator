@@ -5,7 +5,7 @@ using namespace std;
 
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 
-void set_color(int text, int backgrnd)
+void set_color(int text, int backgrnd) // Изменение цвета текста/фона консоли
 {
 	SetConsoleTextAttribute(h, (backgrnd << 4) + text);
 }
@@ -111,6 +111,24 @@ public:
 		cout << "UPDATE!\n";
 	}
 
+	void showStatus()
+	{
+		cout << "Ваши статусы:\n";
+
+
+		if (health >= 60) { cout << "Здоровье: "; set_color(2, 0); cout << health; set_color(7, 0); cout << endl; }
+		else if (health >= 30) { cout << "Здоровье: "; set_color(6, 0); cout << health; set_color(7, 0); cout << endl; }
+		else { cout << "Здоровье: "; set_color(4, 0); cout << health; set_color(7, 0); }
+
+		if (hungry >= 60) { cout << "Сытость: "; set_color(2, 0); cout << hungry; set_color(7, 0); cout << endl; }
+		else if (hungry >= 30) { cout << "Сытость: "; set_color(6, 0); cout << hungry; set_color(7, 0); cout << endl; }
+		else { cout << "Сытость: "; set_color(4, 0); cout << hungry; set_color(7, 0); cout << endl; }
+		
+		if (thirst <= 30) { cout << "Жажда: "; set_color(2, 0); cout << thirst; set_color(7, 0); cout << endl; }
+		else if (thirst <= 60) { cout << "Жажда: "; set_color(6, 0); cout << thirst; set_color(7, 0); cout << endl; }
+		else { cout << "Жажда: "; set_color(4, 0); cout << thirst; set_color(7, 0); cout << endl; }
+	}
+
 	void kill() { delete this; }
 
 	void removeThis() { subject.detach(this); }
@@ -129,6 +147,19 @@ void input(int& num)
 { // А этот длинный цикл нужен чтобы проверить не ввёл ли игрок букву
 	while (!(cin >> num) || (cin.peek() != '\n')) { cin.clear(); while (cin.get() != '\n'); cout << "\nТолько цифрами!\n--> "; }
 	system("cls");
+}
+
+void gameplay(Subject &sub, Human &hum) // Это основная функция взаимодействия с человеком
+{
+	string user;
+	int u;
+
+	while (true)
+	{
+		cout << "\tГЕЙМПЛЕЙ\n\t--------\n";
+		hum.showStatus();
+		break;
+	}
 }
 
 int main()
@@ -171,12 +202,16 @@ int main()
 				}
 				cout << "Введите цифру -> ";
 				input(u);
+
+				if (u >= 1 && u <= sub->getHumanSize()) { gameplay(*sub, *humans[u-1]); }
+				else cout << "Такого человека нет!\n\n";
 			}
 		}
 		else if (user == "3")
 		{
 			// вывод статистики
 			sub->killHumans();
+			delete[] humans;
 			delete sub;
 			cout << "\n\nСпасибо что сыграли! Вверху вы можете наблюдать работу деструкторов.\n";
 			break;
