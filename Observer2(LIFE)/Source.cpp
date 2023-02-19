@@ -87,8 +87,9 @@ class Human : public IHuman
 {
 	Subject& subject;
 	int id, days;
-	int health, hungry, point, mood;
-	int thirst = 0;
+	int health, hungry, point, mood, fatigue;
+	int thirst = fatigue = 0;
+	int sugar;
 	bool death, critical;	
 
 public:
@@ -97,6 +98,7 @@ public:
 		this->subject.attach(this);
 		health = hungry = 100;
 		mood = 80;
+		sugar = 50;
 		death = critical = false;
 		days = 1;
 		point = 2;
@@ -121,15 +123,27 @@ public:
 		srand(time(NULL));
 		days++;
 		
-		int healthMin = 0;
-		int healthMax = 0;
+		int healthMin, healthMax, hungryMin, hungryMax, sugarMin, sugarMax;
+		healthMin = healthMax = 0;
+		hungryMin = 5; hungryMax = 20;
+		sugarMin = -1; sugarMax = 0;
+
 
 		if(hungry >= 125) { healthMin += 2; healthMax += 5; }
 		else if(hungry >= 150) { healthMin += 5; healthMax += 10; }
 		else if (hungry <= 25) { healthMin += 5; healthMax += 10; }
 		else if(hungry <= 50) { healthMin += 2; healthMax += 5; }
 
+		if(thirst >= 50) { healthMin += 2; healthMax += 5; }
+		else if (thirst >= 100) { healthMin += 5; healthMax += 10; }
+		else if (thirst >= 125) { healthMin += 7; healthMax += 15; }
+		else if (thirst >= 150) { healthMin += 10; healthMax += 20; }
+		else if (thirst >= 200) { healthMin += 20; healthMax += 40; }
+
 		if (healthMax > 0) { health -= healthMin + rand() % healthMax; }
+		if (hungryMax > 0) { hungry -= hungryMin + rand() % hungryMax; }
+		sugar += sugarMin + rand() % (sugarMax - sugarMin + 1);
+
 		hungry -= 5 + rand() % 20;
 		thirst += 5 + rand() % 15;
 		mood -= 2 + rand() % 7;
@@ -142,6 +156,9 @@ public:
 
 		if (mood > 100) mood = 100;
 		else if (mood < 0) mood = 0;
+
+		if (sugar > 100) sugar = 100;
+		else if (sugar < 0) sugar = 0;
 	}
 
 	void showStatus()
@@ -163,6 +180,12 @@ public:
 		if (mood >= 60) { cout << "Настроение: "; set_color(2, 0); cout << mood; set_color(7, 0); cout << endl; }
 		else if (mood >= 30) { cout << "Настроение: "; set_color(6, 0); cout << mood; set_color(7, 0); cout << endl; }
 		else { cout << "Настроение: "; set_color(4, 0); cout << mood; set_color(7, 0); cout << endl; }
+		
+		if (sugar <= 40) { cout << "Сахар в крови: "; set_color(6, 0); cout << sugar; set_color(7, 0); cout << endl; }
+		else if (sugar >= 60) { cout << "Сахар в крови: "; set_color(6, 0); cout << sugar; set_color(7, 0); cout << endl; }
+		else if (sugar >= 75) { cout << "Сахар в крови: "; set_color(4, 0); cout << sugar; set_color(7, 0); cout << endl; }
+		else if (sugar <= 25) { cout << "Сахар в крови: "; set_color(4, 0); cout << sugar; set_color(7, 0); cout << endl; }
+		else { cout << "Сахар в крови: "; set_color(2, 0); cout << sugar; set_color(7, 0); cout << endl; }
 
 		cout << "Очки взаимодействий: " << point << endl;
 	}
@@ -227,7 +250,7 @@ void gameplay(Subject &sub, Human &hum) // Это основная функци�
 		}
 		else if (user == "2")
 		{
-
+			cout << "1. Еда\n2. Напитки";
 		}
 		else if (user == "4") break;
 	}
