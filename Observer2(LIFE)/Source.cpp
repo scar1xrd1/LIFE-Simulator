@@ -137,7 +137,7 @@ public:
 			sugarMin = -3; sugarMax = 0;
 			moodMin = 1; moodMax = 5;
 			thirstMin = 5; thirstMax = 15;
-			pointMin = 2; pointMax = 2; 
+			pointMin = 2; pointMax = 2;  
 
 			if (hungry >= 125) { healthMin += 2; healthMax += 5; }
 			else if (hungry >= 150) { healthMin += 5; healthMax += 10; }
