@@ -90,7 +90,7 @@ class Human : public IHuman
 {
 	Subject& subject;
 	int id, days;
-	int health, hungry, point, mood, fatigue; // ДОДЕЛАТЬ ДОБАВЛЕНО ФАТИГУЕ УСТАЛОРСТЬ
+	int health, hungry, point, mood, fatigue, p; // ДОДЕЛАТЬ ДОБАВЛЕНО ФАТИГУЕ УСТАЛОРСТЬ
 	int thirst = fatigue = 0;
 	int sugar;
 	bool death, critical;	
@@ -124,66 +124,68 @@ public:
 	{
 		checkDeath();
 		srand(time(NULL));
-		days++;
-		
-		int healthMin, healthMax, hungryMin, hungryMax, sugarMin, sugarMax, moodMin, moodMax, thirstMin, thirstMax;
-		int pointMin, pointMax, p;
 
-		healthMin = healthMax = 0;
-		hungryMin = 5; hungryMax = 20;
-		sugarMin = -3; sugarMax = 0;
-		moodMin = 1; moodMax = 5;
-		thirstMin = 5; thirstMax = 15;
-		pointMin = 2; pointMax = 2;
+		if (!death)
+		{
+			days++;
 
-		if(hungry >= 125) { healthMin += 2; healthMax += 5; }
-		else if(hungry >= 150) { healthMin += 5; healthMax += 10; }
-		else if (hungry <= 25) { healthMin += 5; healthMax += 10; }
-		else if(hungry <= 50) { healthMin += 2; healthMax += 5; }
-		if (hungry <= 50) { sugarMin -= 2; }
+			int healthMin, healthMax, hungryMin, hungryMax, sugarMin, sugarMax, moodMin, moodMax, thirstMin, thirstMax;
+			int pointMin, pointMax;
 
-		if(thirst >= 50) { healthMin += 2; healthMax += 5; }
-		else if (thirst >= 100) { healthMin += 5; healthMax += 10; }
-		else if (thirst >= 125) { healthMin += 7; healthMax += 15; }
-		else if (thirst >= 150) { healthMin += 10; healthMax += 20; }
-		else if (thirst >= 200) { healthMin += 20; healthMax += 40; }
+			healthMin = healthMax = 0;
+			hungryMin = 5; hungryMax = 20;
+			sugarMin = -3; sugarMax = 0;
+			moodMin = 1; moodMax = 5;
+			thirstMin = 5; thirstMax = 15;
+			pointMin = 2; pointMax = 2;
 
-		if (mood <= 20) { healthMin += 2; healthMax += 5; }
+			if (hungry >= 125) { healthMin += 2; healthMax += 5; }
+			else if (hungry >= 150) { healthMin += 5; healthMax += 10; }
+			else if (hungry <= 25) { healthMin += 5; healthMax += 10; }
+			else if (hungry <= 50) { healthMin += 2; healthMax += 5; }
+			if (hungry <= 50) { sugarMin -= 2; }
 
-		if (sugar <= 20) { hungryMin += 5; hungryMax += 10; moodMin += 2; moodMax += 5; healthMin += 2; healthMax += 5; }
-		else if (sugar >= 80) { healthMin += 10; healthMax += 20; }
+			if (thirst >= 50) { healthMin += 2; healthMax += 5; }
+			else if (thirst >= 100) { healthMin += 5; healthMax += 10; }
+			else if (thirst >= 125) { healthMin += 7; healthMax += 15; }
+			else if (thirst >= 150) { healthMin += 10; healthMax += 20; }
+			else if (thirst >= 200) { healthMin += 20; healthMax += 40; }
 
-		// ------------------------------------------------------------------- //
+			if (mood <= 20) { healthMin += 2; healthMax += 5; }
 
-		if (healthMax > 0) { health -= healthMin + rand() % healthMax; } 
-		if (hungryMax > 0) { hungry -= hungryMin + rand() % hungryMax; }
-		sugar += sugarMin + rand() % (sugarMax - sugarMin + 1);
-		mood -= moodMin + rand() % (moodMax - moodMin + 1);
-		thirst += thirstMin + rand() % (thirstMax - thirstMin + 1);
-		
-		p = pointMin + rand() % (pointMax - pointMin + 1);
-		point += p;
+			if (sugar <= 20) { hungryMin += 5; hungryMax += 10; moodMin += 2; moodMax += 5; healthMin += 2; healthMax += 5; }
+			else if (sugar >= 80) { healthMin += 10; healthMax += 20; }
 
-		//hungry -= 5 + rand() % 20;
-		//thirst += 5 + rand() % 15;
-		//mood -= 2 + rand() % 6;
-		
+			// ------------------------------------------------------------------- //
 
-		// проверки ниже нужны чтобы значения не были меньше 0 / больше 100 (применяется не для всех)
-		if (health > 100) health = 100;
-		else if (health < 0) health = 0;
+			if (healthMax > 0) { health -= healthMin + rand() % healthMax; }
+			if (hungryMax > 0) { hungry -= hungryMin + rand() % hungryMax; }
+			sugar += sugarMin + rand() % (sugarMax - sugarMin + 1);
+			mood -= moodMin + rand() % (moodMax - moodMin + 1);
+			thirst += thirstMin + rand() % (thirstMax - thirstMin + 1);
 
-		if (hungry < 0) hungry = 0;
+			p = pointMin + rand() % (pointMax - pointMin + 1);
+			point += p;
 
-		if (mood > 100) mood = 100;
-		else if (mood < 0) mood = 0;
+			//hungry -= 5 + rand() % 20;
+			//thirst += 5 + rand() % 15;
+			//mood -= 2 + rand() % 6;
 
-		if (sugar > 100) sugar = 100;
-		else if (sugar < 0) sugar = 0;
 
-		if (point <= 0) point = 1;
+			// проверки ниже нужны чтобы значения не были меньше 0 / больше 100 (применяется не для всех)
+			if (health > 100) health = 100;
+			else if (health < 0) health = 0;
 
-		cout << "+" << p << " ОВ\n\n";
+			if (hungry < 0) hungry = 0;
+
+			if (mood > 100) mood = 100;
+			else if (mood < 0) mood = 0;
+
+			if (sugar > 100) sugar = 100;
+			else if (sugar < 0) sugar = 0;
+
+			if (point <= 0) point = 1;
+		}		
 	}
 
 	void showStatus()
@@ -267,6 +269,7 @@ public:
 	void setId(vector<IHuman*> arr) { id = arr.size(); }
 	int getId() { return id; }
 	int getPoint() { return point; }
+	int getP() { return p; }
 	bool humanDeath() { return death; }
 };
 
@@ -296,6 +299,7 @@ void gameplay(Subject &sub, Human &hum) // Это основная функци�
 			break;
 		}
 
+		if(hum.getP() > 0) cout << "+" << hum.getP() << " ОВ\n\n";
 		cout << "\tГЕЙМПЛЕЙ" <<  " ДЕНЬ " << sub.getDay() << " | Человек ID" << hum.getId() << "\n\t--------\n";
 		hum.showStatus();
 
