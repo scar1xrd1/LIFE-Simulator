@@ -82,27 +82,31 @@ public:
 
 	void showStat()
 	{
-		int old, young, iOld, iYoung;
-		old = 0;
-		young = 10000*100;
-
-		for (int i = 0; i < humans.size(); i++)
+		if (humans.size() > 0)
 		{
-			if (humans.at(i)->getDays() > old)
+			int old, young, iOld, iYoung;
+			old = 0;
+			young = 10000 * 100;
+
+			for (int i = 0; i < humans.size(); i++)
 			{
-				old = humans.at(i)->getDays();
-				iOld = i;
+				if (humans.at(i)->getDays() > old)
+				{
+					old = humans.at(i)->getDays();
+					iOld = i;
+				}
+
+				if (humans.at(i)->getDays() < young)
+				{
+					young = humans.at(i)->getDays();
+					iYoung = i;
+				}
 			}
 
-			if (humans.at(i)->getDays() < young)
-			{
-				young = humans.at(i)->getDays();
-				iYoung = i;
-			}			
+			cout << "Самый старый человек прожил дней: " << old << " (Человек ID" << humans.at(iOld)->getId() << ")\n";
+			cout << "Самый молодой человек прожил дней: " << young << " (Человек ID" << humans.at(iYoung)->getId() << ")\n\n";
 		}
-
-		cout << "Самый старый человек прожил дней: " << old << "(Человек ID" << humans.at(iOld)->getId() << ")\n";
-		cout << "Самый молодой человек прожил дней: " << young << "(Человек ID" << humans.at(iYoung)->getId() << ")\n\n";
+		else cout << "Людей нет, и статистики не будет\n\n";
 	}
 
 	int getHumanSize() { return humans.size(); }
@@ -290,18 +294,19 @@ public:
 		}
 		else if (value == "water")
 		{
-			thirst -= 5 + rand() % (10 - 5 + 1);
+			thirst -= 10 + rand() % (15 - 10 + 1);
 			point -= 1;
 		}
 		else if (value == "tea")
 		{
-			thirst -= 6 + rand() % (10 - 6 + 1);
+			thirst -= 11 + rand() % (16 - 11 + 1);
 			mood += 1 + rand() % (2 - 1 + 1);
 			sugar += 2 + rand() % (3 - 2 + 1);
 			point -= 2;
 		}
 		else if (value == "vodka")
 		{
+			thirst -= 2 + rand() % (4 - 2 + 1);
 			mood += 4 + rand() % (6 - 4 + 1);
 			health -= 5 + rand() % (10 - 5 + 1);
 			point -= 3;
@@ -335,10 +340,62 @@ public:
 			point -= 30;
 		    take_pill = true;
 		}
+
+		if (health > 100) health = 100;
+		else if (health < 0) health = 0;
+
+		if (hungry < 0) hungry = 0;
+
+		if (mood > 100) mood = 100;
+		else if (mood < 0) mood = 0;
+
+		if (sugar > 100) sugar = 100;
+		else if (sugar < 0) sugar = 0;
+
+		if (point <= 0) point = 1;
+
+		checkDeath();
 	}
 	void fun(string value)
 	{
+		if (value == "play")
+		{
+			mood += 10 + rand() % (15 - 10 + 1);
+			thirst += 3 + rand() % (5 - 3 + 1);
+			hungry -= 5 + rand() % (15 - 5 + 1);
+			point -= 2;
+		}
+		else if (value == "sport")
+		{
+			health += 2 + rand() % (5 - 2 + 1);
+			hungry -= 7 + rand() % (17 - 7 + 1);
+			thirst += 5 + rand() % (7 - 5 + 1);
+			mood += 2 + rand() % (2 - 4 + 1);
+			point -= 4;
+		}
+		else if (value == "work")
+		{
+			thirst += 7 + rand() % (9 - 7 + 1);
+			health -= 9 + rand() % (14 - 9 + 1);
+			hungry -= 9 + rand() % (20 - 9 + 1);
+			mood -= 2 + rand() % (2 - 10 + 1);
+			point += 4;
+		}
 
+		if (health > 100) health = 100;
+		else if (health < 0) health = 0;
+
+		if (hungry < 0) hungry = 0;
+
+		if (mood > 100) mood = 100;
+		else if (mood < 0) mood = 0;
+
+		if (sugar > 100) sugar = 100;
+		else if (sugar < 0) sugar = 0;
+
+		if (point <= 0) point = 1;
+
+		checkDeath();
 	}
 
 	void kill() { delete this; }
@@ -449,27 +506,49 @@ void gameplay(Subject &sub, Human &hum) // Это основная функци�
 
 				if (user == "1")
 				{
-					if (hum.getPoint() >= 1) { hum.eat("water"); cout << "Вы выпили стакан воды! - 1 ОВ\n\n"; }
+					if (hum.getPoint() >= 1) { hum.eat("water"); cout << "Вы выпили стакан воды! -1 ОВ\n\n"; }
 					else cout << "Вам не хватает очков взаимодействия!\n\n";
 				}
 				else if (user == "2")
 				{
-					if(hum.getPoint() >= 2 ) { hum.eat("tea"); cout << "Вы выпили стакан чая! - 2 ОВ\n\n"; }
+					if(hum.getPoint() >= 2 ) { hum.eat("tea"); cout << "Вы выпили стакан чая! -2 ОВ\n\n"; }
 					else cout << "Вам не хватает очков взаимодействия!\n\n";
 				}
 				else if (user == "3")
 				{
-					if (hum.getPoint() >= 2) { hum.eat("vodka"); cout << "Вы выпили бутылку водки! - 3 ОВ\n\n"; }
+					if (hum.getPoint() >= 2) { hum.eat("vodka"); cout << "Вы выпили бутылку водки! -3 ОВ\n\n"; }
 					else cout << "Вам не хватает очков взаимодействия!\n\n";
 				}
 				else if (user == "4")
 				{
-					if(hum.getPoint() >= 30) { hum.eat("pill"); cout << "Вы приняли неизвестные таблетки! - 30 ОВ\n\n"; }
+					if(hum.getPoint() >= 30) { hum.eat("pill"); cout << "Вы приняли неизвестные таблетки! -30 ОВ\n\n"; }
 					else cout << "Вам не хватает очков взаимодействия!\n\n";
 				}
 				else if (user == "5") continue;
 			}
 			else if (user == "3") continue;
+		}
+		else if (user == "3")
+		{
+			hum.showStatus();
+			cout << "\n1. Играть в видеоигры (цена 2 ОВ; +настроение, -сытость)\n2. Заниматься спортом (цена 4 ОВ; +здороье, -сытость)\n3. Подработать грузчиком (цена 0 ОВ; сильно -здоровье, но вы получаете 4 ОВ)\n4. Отмена\nВведите цифру -> ";
+			input(user);
+
+			if (user == "1")
+			{
+				if (hum.getPoint() >= 2) { hum.eat("play"); cout << "Вы поиграли в видеоигры! -2 ОВ\n\n"; }
+				else cout << "Вам не хватает очков взаимодействия!\n\n";
+			}
+			else if (user == "2")
+			{
+				if (hum.getPoint() >= 4) { hum.fun("sport"); cout << "Вы позанимались спортом! -4 ОВ\n\n"; }
+				else cout << "Вам не хватает очков взаимодействия!\n\n";
+			}
+			else if (user == "3")
+			{
+				hum.fun("work"); cout << "Вы поработали грузчиком! +4 ОВ\n\n"; 
+			}
+			else if (user == "4") continue;
 		}
 		else if (user == "4") break;
 	}
@@ -539,6 +618,7 @@ int main()
 			{
 				sub->deleteHumans();
 				delete sub;
+				cout << "\n\nСпасибо что сыграли! Вверху вы можете наблюдать работу деструкторов.\n\n";
 				break;
 			}
 		}
